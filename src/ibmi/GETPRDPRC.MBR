@@ -1,0 +1,71 @@
+     H DEBUG DATFMT(*ISO)
+     H*================================================================
+     H*  C R E A T I O N     P A R A M E T E R S                      *
+     H*CRT: CRTSQLRPGI dbgview(*source) commit(*none)                :*
+     H*================================================================
+     H*
+     H* Description:    IBM i API provider demo business logic program
+     H*                 that performs product price lookup
+     H*
+     H* Author :        Dima Kuznetsov
+     H* Creation date:  09/15/2016
+     H*
+
+     d main            pr                  extpgm('GETPRDPRC')
+     d  productName                  30a   const
+     d  productID                    20i 0
+     d  priceGroup                   10a   dim(100)
+     d  productPrice                 11s 5 dim(100)
+     d  returnCd                      3s 0
+     d  returnMsg                   254a
+
+     d listSize        s             10i 0 inz(100)
+     d  outDS          ds                  qualified dim(100) inz
+     d   d#prdID                           like(productID)
+     d   d#prcGrp                          like(priceGroup)
+     d   d#price                           like(productPrice)
+
+     d  i              s             10i 0
+     d  c#eof          c                   const('0200')
+
+     d main            pi
+     d  productName                  30a   const
+     d  productID                    20i 0
+     d  priceGroup                   10a   dim(100)
+     d  productPrice                 11s 5 dim(100)
+     d  returnCd                      3s 0
+     d  returnMsg                   254a
+
+      /free
+
+        clear outDS;
+        clear pricegroup;
+        clear productprice;
+        exec sql
+          declare input cursor for
+            SELECT productID, pricegroup, price
+            FROM productpricev1
+            WHERE productName = :productName;
+
+        exec sql
+           open input;
+        exec sql
+           fetch next from input
+           for :listSize rows
+           into :outDS;
+        if sqlstt > c#EOF or sqler3 = 0;
+          returnCd = -1;
+          returnMsg = 'Product ' +%trim(productName) + ' not found';
+        else;
+          productid = outds(1).d#prdID;
+          for i = 1 to sqler3;
+            pricegroup(i) = outds(i).d#prcgrp;
+            productprice(i) = outds(i).d#price;
+          endfor;
+        endif;
+        exec sql
+         close input;
+        //*inlr = *on;
+        return;
+
+      /end-free

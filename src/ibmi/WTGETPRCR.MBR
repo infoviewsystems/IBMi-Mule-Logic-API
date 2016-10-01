@@ -1,0 +1,17 @@
+--*CRT: RUNSQLSTM COMMIT(*NONE) ERRLVL(30)            :*
+
+set schema muledemos;
+
+drop table wtgetprcr;
+
+-- Get Price Response Staging
+create table WTGETPRCR (
+  id          bigint not null generated always as identity primary key,
+  transid     bigint not null with default,
+  productID   bigint not null with default,
+  productName char(30) not null with default,
+  priceGroup  char(10) not null with default,
+  productPrice decimal(11,2) not null with default,
+  errorYN     char(1) not null with default,
+  errorMsg    char(254) not null with default);
+

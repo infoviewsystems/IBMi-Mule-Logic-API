@@ -1,0 +1,72 @@
+     H*================================================================
+     H*  C R E A T I O N     P A R A M E T E R S                      *
+     H*CRT: CRTSQLRPGI dbgview(*source) commit(*none)                :*
+     H*================================================================
+     H*
+     H* Description:    Processing program for Product Lookup API
+     H*
+     H* Author :        Dima Kuznetsov
+     H* Creation date:  09/30/2016
+     H*
+
+     d main            pr                  extpgm('WTGETPRC')
+     d  transID                      20i 0 const
+     d  transType                    10    const
+     d  reqData                     254a   const
+     d  returnCd                      3s 0
+     d  returnMsg                   254
+
+     d getprice        pr                  extpgm('GETPRDPRC')
+     d  productName                  30a   const
+     d  productID                    20i 0
+     d  priceGroup                   10a   dim(100)
+     d  productPrice                 11s 5 dim(100)
+     d  returnCd                      3s 0
+     d  returnMsg                   254a
+
+     d  productName    s             30a
+     d  productID      s             20i 0
+     d  priceGroup     s             10a   dim(100)
+     d  productPrice   s             11s 5 dim(100)
+     d  w#returnCd     s              3s 0
+     d  w#returnMsg    s            254a
+     d  i              s             10i 0
+     d  w#pricegrp     s             10a
+     d  w#price        s             11s 5
+
+     d main            pi
+     d  transID                      20i 0 const
+     d  transType                    10    const
+     d  reqData                     254a   const
+     d  returnCd                      3s 0
+     d  returnMsg                   254
+
+      /free
+          productName = %trim(reqData);
+          returnCd = *zeros;
+          getPrice(productName:productID:priceGroup:
+                     productPrice:w#returnCd:w#returnMsg);
+
+          if w#returnCd< 0;
+            exec sql
+              insert into wtgetprcr (transid,productName,errorYN, errorMsg)
+              values(:transID, :productName, 'Y', :w#returnMsg);
+            returnCd = w#returnCd;
+          else;
+            for i = 1 to 100;
+              if priceGroup(i) = *blanks;
+                leave;
+              endif;
+              w#pricegrp = pricegroup(i);
+              w#price = productPrice(i);
+              exec sql
+                insert into wtgetprcr (transid,productid, productName,
+                  priceGroup, productPrice, errorYN)
+                  values (:transID,:productid, :productName,
+                  :w#priceGrp, :w#price, 'N');
+            endfor;
+          endif;
+        //*inlr = *on;
+        return;
+
+      /end-free

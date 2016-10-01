@@ -1,0 +1,25 @@
+#%RAML 0.8
+title: Product Pricing
+version: 1.0      
+
+/products/{productname}:
+  get:
+    responses:
+      200:
+        body:
+          text/json:
+            example: |
+             {
+              "productName": "TV",
+              "productID": 3,
+              "productPrices": [{
+                  "priceGroup": "REGULAR",
+                   "productPrice": 500.00
+                }, {
+                   "priceGroup": "SALE",
+                   "productPrice": 450.00
+                }]
+              }
+              
+ 
+              
