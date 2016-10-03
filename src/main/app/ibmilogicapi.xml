@@ -28,7 +28,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         <db:stored-procedure config-ref="Generic_Database_Configuration" doc:name="Call CRTTRN">
             <db:parameterized-query><![CDATA[CALL CRTTRN (:transType,:altTrnID,:reqData,:transID,:returnCd,:returnMsg)]]></db:parameterized-query>
             <db:in-param name="transType" type="CHAR" value="GETPRDPRC"/>
-            <db:in-param name="altTrnID" type="CHAR"/>
+            <db:in-param name="altTrnID" type="CHAR" value="&quot; &quot;"/>
             <db:in-param name="reqData" type="CHAR" value="#[flowVars.productname]"/>
             <db:out-param name="transID" type="BIGINT"/>
             <db:out-param name="returnCd" type="NUMERIC"/>
